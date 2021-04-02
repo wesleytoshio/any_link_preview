@@ -37,6 +37,14 @@ class AnyLinkPreview extends StatefulWidget {
   /// Other options of error params are used
   final Widget errorWidget;
 
+  /// A widget to display before the title.
+  /// Typically an [Icon] widget.
+  final Widget leading;
+
+  /// A widget to display after the title.
+  /// Typically an [Icon] widget.
+  final Widget trailing;
+
   /// Title that need to be shown if something goes wrong
   /// Deaults to `Something went wrong!`
   final String errorTitle;
@@ -58,6 +66,10 @@ class AnyLinkPreview extends StatefulWidget {
   /// Deaults to `3`
   final int bodyMaxLines;
 
+  /// Give the limit to body text (Description)
+  /// Deaults to `3`
+  final int titleMaxLines;
+
   /// Cache result time, default cache `30 days`
   /// Works only for IOS & not for android
   final Duration cache;
@@ -74,8 +86,13 @@ class AnyLinkPreview extends StatefulWidget {
   /// BorderRadius for the card. Deafults to `12`
   final double borderRadius;
 
+  /// BorderRadius for the card. Deafults to `12`
+  final double height;
+
   /// Box shadow for the card. Deafults to `[BoxShadow(blurRadius: 3, color: Colors.grey)]`
   final List<BoxShadow> boxShadow;
+
+  final EdgeInsetsGeometry padding;
 
   AnyLinkPreview({
     this.key,
@@ -87,6 +104,7 @@ class AnyLinkPreview extends StatefulWidget {
     this.showMultimedia = true,
     this.backgroundColor = const Color.fromRGBO(235, 235, 235, 1),
     this.bodyMaxLines = 3,
+    this.titleMaxLines = 3,
     this.bodyTextOverflow = TextOverflow.ellipsis,
     this.placeholderWidget,
     this.errorWidget,
@@ -95,6 +113,10 @@ class AnyLinkPreview extends StatefulWidget {
     this.errorTitle,
     this.borderRadius,
     this.boxShadow,
+    this.leading = const Offstage(),
+    this.trailing = const Offstage(),
+    this.height,
+    this.padding,
   })  : assert(link != null),
         super(key: key);
 
@@ -171,47 +193,71 @@ class _AnyLinkPreviewState extends State<AnyLinkPreview> {
     String image = '',
     bool isIcon = false,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: widget.backgroundColor,
-        borderRadius: widget.borderRadius ?? BorderRadius.circular(12),
-        boxShadow:
-            widget.boxShadow ?? [BoxShadow(blurRadius: 3, color: Colors.grey)],
-      ),
-      height: _height,
-      child: (widget.displayDirection == UIDirection.UIDirectionHorizontal)
-          ? LinkViewHorizontal(
-              key: widget.key,
-              url: widget.link,
-              title: title,
-              description: desc,
-              imageUri: image,
-              onTap: _launchURL,
-              titleTextStyle: widget.titleStyle,
-              bodyTextStyle: widget.bodyStyle,
-              bodyTextOverflow: widget.bodyTextOverflow,
-              bodyMaxLines: widget.bodyMaxLines,
-              showMultiMedia: widget.showMultimedia,
-              isIcon: isIcon,
-              bgColor: widget.backgroundColor,
-              radius: widget.borderRadius ?? 12,
-            )
-          : LinkViewVertical(
-              key: widget.key,
-              url: widget.link,
-              title: title,
-              description: desc,
-              imageUri: image,
-              onTap: _launchURL,
-              titleTextStyle: widget.titleStyle,
-              bodyTextStyle: widget.bodyStyle,
-              bodyTextOverflow: widget.bodyTextOverflow,
-              bodyMaxLines: widget.bodyMaxLines,
-              showMultiMedia: widget.showMultimedia,
-              isIcon: isIcon,
-              bgColor: widget.backgroundColor,
-              radius: widget.borderRadius ?? 12,
+    return Column(
+      children: [
+        Divider(
+          color: Colors.grey,
+          height: 1,
+        ),
+        Container(
+          decoration: BoxDecoration(
+            color: widget.backgroundColor,
+            borderRadius: widget.borderRadius ?? BorderRadius.circular(0),
+            boxShadow: widget.boxShadow ??
+                [BoxShadow(blurRadius: 3, color: Colors.grey)],
+          ),
+          child: Container(
+            height: widget.height,
+            margin: widget.padding,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                widget.leading,
+                Expanded(
+                  child: (widget.displayDirection ==
+                          UIDirection.UIDirectionHorizontal)
+                      ? LinkViewHorizontal(
+                          key: widget.key,
+                          url: widget.link,
+                          title: title,
+                          description: desc,
+                          imageUri: image,
+                          onTap: _launchURL,
+                          titleTextStyle: widget.titleStyle,
+                          bodyTextStyle: widget.bodyStyle,
+                          bodyTextOverflow: widget.bodyTextOverflow,
+                          bodyMaxLines: widget.bodyMaxLines,
+                          titleMaxLines: widget.titleMaxLines,
+                          showMultiMedia: widget.showMultimedia,
+                          isIcon: isIcon,
+                          bgColor: widget.backgroundColor,
+                          radius: widget.borderRadius ?? 12,
+                        )
+                      : LinkViewVertical(
+                          key: widget.key,
+                          url: widget.link,
+                          title: title,
+                          description: desc,
+                          imageUri: image,
+                          onTap: _launchURL,
+                          titleTextStyle: widget.titleStyle,
+                          bodyTextStyle: widget.bodyStyle,
+                          bodyTextOverflow: widget.bodyTextOverflow,
+                          bodyMaxLines: widget.bodyMaxLines,
+                          titleMaxLines: widget.titleMaxLines,
+                          showMultiMedia: widget.showMultimedia,
+                          isIcon: isIcon,
+                          bgColor: widget.backgroundColor,
+                          radius: widget.borderRadius ?? 12,
+                        ),
+                ),
+                widget.trailing,
+              ],
             ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -224,18 +270,7 @@ class _AnyLinkPreviewState extends State<AnyLinkPreview> {
             ? ((MediaQuery.of(context).size.height) * 0.15)
             : ((MediaQuery.of(context).size.height) * 0.25);
 
-    if (_loading)
-      return widget.placeholderWidget ??
-          Container(
-            height: _height,
-            width: MediaQuery.of(context).size.width,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              color: Colors.grey[200],
-            ),
-            alignment: Alignment.center,
-            child: Text('Fetching data...'),
-          );
+    if (_loading) return widget.placeholderWidget ?? Offstage();
 
     if (_info is WebImageInfo) {
       String img = (_info as WebImageInfo).image;

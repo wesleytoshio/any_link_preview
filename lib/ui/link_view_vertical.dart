@@ -11,6 +11,7 @@ class LinkViewVertical extends StatelessWidget {
   final bool showMultiMedia;
   final TextOverflow bodyTextOverflow;
   final int bodyMaxLines;
+  final int titleMaxLines;
   final bool isIcon;
   final double radius;
   final Color bgColor;
@@ -27,6 +28,7 @@ class LinkViewVertical extends StatelessWidget {
     this.showMultiMedia,
     this.bodyTextOverflow,
     this.bodyMaxLines,
+    this.titleMaxLines,
     this.isIcon = false,
     this.bgColor,
     this.radius,
@@ -119,7 +121,7 @@ class LinkViewVertical extends StatelessWidget {
               title,
               style: _titleTS,
               overflow: TextOverflow.ellipsis,
-              maxLines: _maxLines,
+              maxLines: bodyMaxLines == null ? _maxLines : bodyMaxLines,
             ),
           ],
         ),

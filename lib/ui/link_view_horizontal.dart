@@ -11,6 +11,7 @@ class LinkViewHorizontal extends StatelessWidget {
   final bool showMultiMedia;
   final TextOverflow bodyTextOverflow;
   final int bodyMaxLines;
+  final int titleMaxLines;
   final bool isIcon;
   final double radius;
   final Color bgColor;
@@ -27,6 +28,7 @@ class LinkViewHorizontal extends StatelessWidget {
     this.showMultiMedia,
     this.bodyTextOverflow,
     this.bodyMaxLines,
+    this.titleMaxLines,
     this.isIcon = false,
     this.bgColor,
     this.radius,
@@ -126,47 +128,41 @@ class LinkViewHorizontal extends StatelessWidget {
   }
 
   Widget _buildTitleContainer(TextStyle _titleTS, _maxLines) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 2, 3, 1),
-      child: Column(
-        children: <Widget>[
-          Container(
-            alignment: Alignment(-1.0, -1.0),
-            child: Text(
-              title,
-              style: _titleTS,
-              overflow: TextOverflow.ellipsis,
-              maxLines: _maxLines,
-            ),
+    return Column(
+      children: <Widget>[
+        Container(
+          alignment: Alignment(-1.0, -1.0),
+          child: Text(
+            title,
+            style: _titleTS,
+            overflow: TextOverflow.ellipsis,
+            maxLines: bodyMaxLines == null ? _maxLines : bodyMaxLines,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   Widget _buildBodyContainer(TextStyle _bodyTS, _maxLines) {
     return Expanded(
       flex: 2,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(5, 3, 5, 0),
-        child: Column(
-          children: <Widget>[
-            Expanded(
-              child: Container(
-                alignment: Alignment(-1.0, -1.0),
-                child: Text(
-                  description,
-                  textAlign: TextAlign.left,
-                  style: _bodyTS,
-                  overflow: bodyTextOverflow == null
-                      ? TextOverflow.ellipsis
-                      : bodyTextOverflow,
-                  maxLines: bodyMaxLines == null ? _maxLines : bodyMaxLines,
-                ),
+      child: Column(
+        children: <Widget>[
+          Expanded(
+            child: Container(
+              alignment: Alignment(-1.0, -1.0),
+              child: Text(
+                description,
+                textAlign: TextAlign.left,
+                style: _bodyTS,
+                overflow: bodyTextOverflow == null
+                    ? TextOverflow.ellipsis
+                    : bodyTextOverflow,
+                maxLines: bodyMaxLines == null ? _maxLines : bodyMaxLines,
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
